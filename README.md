@@ -39,8 +39,11 @@ This should be the target domain to reach.
 proxy_set_header Host HOST_HEADER;
 ```
 
-HTPASSWD: An htpasswd entry encoded in base64
+HTPASSWD: A base64 encoded htpasswd entry
 ```
-docker run --rm -ti xmartlabs/htpasswd <username> <password>
-value=$(echo '<hash>' | base64)
+# encode
+htpasswd=$(docker run --rm -ti xmartlabs/htpasswd <username> <password> | base64 -w 0)
+
+# decode
+echo $htpasswd | base64 -d -w 0
 ```
