@@ -1,0 +1,43 @@
+user nginx;
+worker_processes 4;
+pid /run/nginx.pid;
+
+events {
+  worker_connections 768;
+}
+
+http {
+
+  server_tokens off;
+
+  upstream upstream {
+  {{ if .Env.UPSTREAMS -}}
+  {{ range $upstream := split .Env.UPSTREAMS "," -}}
+  server {{$upstream}};
+  {{ end -}}
+  {{ end -}}
+  }
+
+  server {
+    listen 80 default_server;
+    server_name "";
+
+    location / {
+      allow all;
+
+      proxy_pass {{ default .Env.UPSTREAM_PROTO "https"}}://upstream/;
+      {{if .Env.HOST_HEADER }}proxy_set_header Host '{{ .Env.HOST_HEADER }}';{{end}}
+      proxy_set_header Connection "";
+      proxy_http_version 1.1;
+      proxy_buffering off;
+      proxy_redirect off;
+      proxy_read_timeout 36000s;
+      client_max_body_size 0;
+
+      {{ if .Env.HTPASSWD -}}
+      auth_basic "access";
+      auth_basic_user_file /etc/nginx/htpasswd;
+      {{ end }}
+    }
+  }
+}
