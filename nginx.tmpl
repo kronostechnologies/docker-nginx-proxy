@@ -28,7 +28,17 @@ http {
     }
 
     location / {
-      allow all;
+      {{ if .Env.ALLOWED -}}
+      {{ range $addr := split .Env.ALLOWED "," -}}
+      allow {{$addr}};
+      {{ end -}}
+      {{ end -}}
+
+      {{ if .Env.DENIED -}}
+      {{ range $addr := split .Env.DENIED "," -}}
+      deny {{$addr}};
+      {{ end -}}
+      {{ end -}}
 
       proxy_pass {{ default .Env.UPSTREAM_PROTO "https"}}://upstream/;
       {{if .Env.HOST_HEADER }}proxy_set_header Host '{{ .Env.HOST_HEADER }}';{{end}}

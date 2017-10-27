@@ -47,3 +47,14 @@ htpasswd=$(docker run --rm -ti xmartlabs/htpasswd <username> <password> | base64
 # decode
 echo $htpasswd | base64 -d -w 0
 ```
+
+ALLOWED: A comma separated list of subnets allowed as source
+DENIED:  A comma separated list of subnets denied as source
+```
+location / {
+  allow ALLOWED[0]
+  allow ALLOWED[1]
+  deny DENIED[0]
+  deny DENIED[1]
+}
+```
