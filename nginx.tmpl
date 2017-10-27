@@ -22,6 +22,11 @@ http {
     listen 80 default_server;
     server_name "";
 
+    location /health-check {
+      access_log off;
+      return  200;
+    }
+
     location / {
       allow all;
 
