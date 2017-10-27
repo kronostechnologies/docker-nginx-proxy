@@ -58,3 +58,9 @@ location / {
   deny DENIED[1]
 }
 ```
+
+XFORWARDED_SUBNET: A subnet to trust X-Forwarded-For header
+```
+  real_ip_header X-Forwarded-For;
+  set_real_ip_from XFORWARDED_SUBNET;
+```
