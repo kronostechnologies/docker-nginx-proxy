@@ -39,7 +39,7 @@ http {
       {{ end -}}
       {{ end -}}
 
-      set $backend {{ .Env.UPSTREAM }}{{ default .Env.LOCATION "/" }};
+      set $backend {{ .Env.UPSTREAM }};
       proxy_pass $backend;
       {{if .Env.HOST_HEADER }}proxy_set_header Host '{{ .Env.HOST_HEADER }}';{{end}}
       proxy_set_header Connection "";
