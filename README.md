@@ -59,7 +59,7 @@ location / {
 }
 ```
 
-XFORWARDED_SUBNET: A subnet to trust X-Forwarded-For header
+XFORWARDED_SUBNET: A comma separated list of subnets to trust X-Forwarded-For header from
 ```
   real_ip_header X-Forwarded-For;
   set_real_ip_from XFORWARDED_SUBNET;
