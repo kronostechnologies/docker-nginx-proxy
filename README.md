@@ -18,11 +18,11 @@ FEAT:
 
 Environment variables:
 
-UPSTREAMS:     Comma separated list of nginx upstreams
+UPSTREAM: Comma separated list of nginx upstreams (Always use host:port)
 ```
 upstream upstream {
-  server UPSTREAMS[0]
-  server UPSTREAMS[1]
+  server UPSTREAM[0]
+  server UPSTREAM[1]
   etc.
 }
 ```
@@ -32,6 +32,14 @@ If your upstreams are http, then this should be http.
 ```
 proxy_pass UPSTREAM_PROTO://upsteam/
 ```
+
+UPSTREAM_DYNAMIC: Resolve upstream DNS on every hits (only if there is a single source)
+Default: true
+```
+set UPSTREAM_PROTO://$server UPSTREAM
+proxy_pass $server
+```
+
 
 HOST_HEADER: The host header passed to upstream servers.
 This should be the target domain to reach.

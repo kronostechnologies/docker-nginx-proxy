@@ -11,6 +11,14 @@ http {
   server_tokens off;
   resolver {{ default .Env.RESOLVER "127.0.0.11" }} valid=30s;
 
+  {{ if not (isTrue (default .Env.UPSTREAM_DYNAMIC "true")) }}
+  upstream backend {
+    {{- range $addr := split (replace .Env.UPSTREAM ", " "," -1) "," }}
+    server {{$addr}};
+    {{- end }}
+  }
+  {{- end }}
+
   server {
     listen 80 default_server;
     server_name "";
@@ -23,25 +31,30 @@ http {
     {{ if .Env.XFORWARDED_SUBNET -}}
     # Trust subnet with X-Forwarded-For header
     real_ip_header X-Forwarded-For;
-    {{ range $addr := split .Env.XFORWARDED_SUBNET "," -}}
+    {{ range $addr := split (replace .Env.XFORWARDED_SUBNET ", " "," -1) "," -}}
     set_real_ip_from {{$addr}};
     {{ end -}}
     {{ end -}}
 
     location {{ default .Env.LOCATION "/" }} {
       {{ if .Env.ALLOWED -}}
-      {{ range $addr := split .Env.ALLOWED "," -}}
+      {{ range $addr := split (replace .Env.ALLOWED ", " "," -1) "," -}}
       allow {{$addr}};
       {{ end -}}
       {{ end -}}
 
       {{ if .Env.DENIED -}}
-      {{ range $addr := split .Env.DENIED "," -}}
+      {{ range $addr := split (replace .Env.DENIED ", " "," -1) "," -}}
       deny {{$addr}};
       {{ end -}}
       {{ end -}}
 
-      set $backend {{ .Env.UPSTREAM }};
+      {{ if isTrue (default .Env.UPSTREAM_DYNAMIC "true") }}
+      set $backend {{ default .Env.UPSTREAM_PROTO "https"}}://{{ .Env.UPSTREAM }};
+      {{- else }}
+      set $backend {{ default .Env.UPSTREAM_PROTO "https"}}://backend;
+      {{- end }}
+
       proxy_pass $backend;
       {{if .Env.HOST_HEADER }}proxy_set_header Host '{{ .Env.HOST_HEADER }}';{{end}}
       proxy_set_header Connection "";
